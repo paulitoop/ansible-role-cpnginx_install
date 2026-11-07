@@ -1,0 +1,12 @@
+---
+- name: Проверить конфигурацию перед перезагрузкой
+  ansible.builtin.command:
+    argv: ["{{ cpnginx_install_cpnginx_bin_dir }}/cpnginx", '-t']
+  become: true
+  changed_when: false
+
+- name: Перезагрузить проверенную конфигурацию
+  ansible.builtin.command:
+    argv: ["{{ cpnginx_install_cpnginx_bin_dir }}/cpnginx", '-s', reload]
+  become: true
+  changed_when: true

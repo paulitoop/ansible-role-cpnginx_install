@@ -17,3 +17,10 @@ reports/
 *:Zone.Identifier
 .env
 .vault-init.json
+*.license
+*.pin
+pins.json
+vault-payload.json
+vault-init.json
+approle.json
+.lab-state/
