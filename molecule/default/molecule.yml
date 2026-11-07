@@ -1,0 +1,30 @@
+---
+dependency:
+  name: galaxy
+
+driver:
+  name: docker
+
+platforms:
+  - name: cpnginx-test
+    image: cpnginx-ubuntu:24.04
+    pre_build_image: true
+    privileged: true
+
+provisioner:
+  name: ansible
+  lint: ansible-lint
+
+verifier:
+  name: ansible
+
+scenario:
+  name: default
+  test_sequence:
+    - dependency   # подтягиваем роли и коллекции
+    - create       # создаём контейнеры
+    - prepare
+    - converge     # применяем роль
+    - idempotence  # проверяем идемпотентность
+    - verify       # тесты
+    - destroy      # удаляем контейнеры

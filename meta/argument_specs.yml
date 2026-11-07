@@ -1,0 +1,54 @@
+---
+argument_specs:
+  main:
+    short_description: Установка и базовая конфгурация КриптоПро Nginx
+    description:
+      - >
+        Роль устанавливает дистрибутив КриптоПро Nginx
+        и производит базовую конфигурацию, в том числе, устанавливает лицензию.
+    version_added: 1.0.0
+    author:
+      - Pavel Chernodolia
+    options:
+
+      cpnginx_install_csp_license:
+        type: str
+        required: false
+        description: Серверная лицензия криптопро.
+        version_added: 1.0.0
+
+      cpnginx_install_cpnginx_config_dir:
+        type: str
+        required: true
+        description: Cтандартная директория с конфигурацией cpnginx
+        version_added: 1.0.0
+
+      cpnginx_install_cpnginx_bin_dir:
+        type: str
+        required: true
+        description: Cтандартная директория с бинарными файлами cpnginx
+        version_added: 1.0.0
+
+      cpnginx_install_cpnginx_html_dir:
+        type: str
+        required: true
+        description: Cтандартная директория с WEB страницами cpnginx
+        version_added: 1.0.0
+
+      cpnginx_install_default_conf:
+        type: str
+        required: true
+        description: Файл default.conf по умолчанию
+        version_added: 1.1.0
+
+      cpnginx_install_cpnginx_conf:
+        type: str
+        required: true
+        description: Файл cpnginx.conf по умолчанию
+        version_added: 1.1.0
+
+      cpnginx_install_deb_packet:
+        type: str
+        required: true
+        description: Файл с deb пакетом по умолчанию
+        version_added: 1.1.0

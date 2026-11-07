@@ -1,0 +1,6 @@
+---
+profile: production
+exclude_paths:
+  - .gitlab-ci-compliance.yml
+  - .gitlab-ci.yml
+  - policy.yml

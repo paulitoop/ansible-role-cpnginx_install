@@ -1,0 +1,93 @@
+---
+# tasks file for cpnginx-install
+- name: Копируем пакет КриптоПро на хост
+  ansible.builtin.copy:
+    src: "{{ cpnginx_install_deb_packet }}"
+    dest: /tmp/linux-amd64_deb.tgz
+    mode: '0644'
+
+- name: Распаковываем дистрибутив
+  ansible.builtin.unarchive:
+    src: /tmp/linux-amd64_deb.tgz
+    dest: /lib/
+    remote_src: true
+  become: true
+
+- name: Запуск установочного скрипта ./install.sh cprocsp-nginx
+  ansible.builtin.command: "./install.sh cprocsp-nginx"
+  args:
+    chdir: "/lib/linux-amd64_deb"
+    creates: "{{ cpnginx_install_cpnginx_bin_dir }}/cpnginx"
+  become: true
+
+- name: Установка лицензии КриптоПро
+  ansible.builtin.include_tasks: set_license.yml
+  when: cpnginx_install_csp_license is defined and cpnginx_install_csp_license | trim != ""
+
+- name: Проверяем, доступен ли systemd
+  ansible.builtin.stat:
+    path: /run/systemd/system
+  register: systemd_dir
+
+- name: Выводим результат
+  ansible.builtin.debug:
+    msg: "Systemd is not running in this container"
+  when: not systemd_dir.stat.exists
+
+- name: Установить default.conf
+  ansible.builtin.copy:
+    src: "{{ cpnginx_install_default_conf }}"
+    dest: "{{ cpnginx_install_cpnginx_config_dir }}/conf.d/default.conf"
+    mode: '0644'
+  become: true
+  notify: Reload cpnginx
+
+- name: Установить cpnginx.conf
+  ansible.builtin.copy:
+    src: "{{ cpnginx_install_cpnginx_conf }}"
+    dest: "{{ cpnginx_install_cpnginx_config_dir }}/cpnginx.conf"
+    mode: '0644'
+  become: true
+  notify: Reload cpnginx
+
+- name: Установить index.html
+  ansible.builtin.copy:
+    src: index.html
+    dest: "{{ cpnginx_install_cpnginx_html_dir }}/"
+    mode: '0644'
+  become: true
+
+- name: Запускаем службу
+  ansible.builtin.systemd_service:
+    state: started
+    name: cpnginx
+    enabled: true
+  become: true
+  when: systemd_dir.stat.exists
+
+- name: Создание файлов для тестов molecule в докере
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - /var/run
+    - /var/log/cpnginx
+  become: true
+  when: not systemd_dir.stat.exists
+
+- name: Проверяем, работает ли cpnginx
+  ansible.builtin.command: "pgrep -f cpnginx"
+  register: cpnginx_running
+  ignore_errors: true
+  changed_when: false
+
+- name: Запуск cpnginx, если не запущен
+  ansible.builtin.shell: "{{ cpnginx_install_cpnginx_bin_dir }}/cpnginx"
+  args:
+    executable: /bin/bash
+  become: true
+  when: not systemd_dir.stat.exists and cpnginx_running.rc != 0
+  changed_when: true

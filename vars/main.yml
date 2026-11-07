@@ -1,0 +1,5 @@
+---
+# vars file for cpnginx-install
+cpnginx_install_cpnginx_config_dir: /etc/opt/cprocsp/cpnginx
+cpnginx_install_cpnginx_bin_dir: /opt/cprocsp/sbin/amd64
+cpnginx_install_cpnginx_html_dir: /var/opt/cprocsp/cpnginx/html

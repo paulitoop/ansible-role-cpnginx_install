@@ -1,0 +1,22 @@
+- name: Получение текущей лицензии
+  ansible.builtin.shell: |
+    set -o pipefail
+    {{ cpnginx_install_cpnginx_bin_dir }}/cpconfig -license -view | awk 'NR == 2 {print $1}'
+  args:
+    executable: /bin/bash
+  register: cpnginx_install_current_license
+  changed_when: false
+  ignore_errors: true
+  become: true
+
+- name: Сравнение текущей лицензии с желаемой
+  ansible.builtin.set_fact:
+    cpnginx_install_license_needs_update: "{{ cpnginx_install_current_license.stdout != (cpnginx_install_csp_license | trim | replace('-', '')) }}"
+
+- name: Установка лицензии КриптоПро CSP
+  ansible.builtin.shell: "{{ cpnginx_install_cpnginx_bin_dir }}/cpconfig -license -set {{ cpnginx_install_csp_license }}"
+  args:
+    executable: /bin/bash
+  become: true
+  when: cpnginx_install_license_needs_update | bool
+  changed_when: cpnginx_install_license_needs_update | bool

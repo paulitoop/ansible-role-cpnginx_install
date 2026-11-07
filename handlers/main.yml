@@ -1,0 +1,8 @@
+---
+# handlers file for cpnginx-install
+- name: Reload cpnginx
+  ansible.builtin.shell: "{{ cpnginx_install_cpnginx_bin_dir }}/cpnginx -s reload"
+  args:
+    executable: /bin/bash
+  become: true
+  changed_when: true

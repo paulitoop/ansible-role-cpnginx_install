@@ -1,0 +1,18 @@
+galaxy_info:
+  author: Pavel Chernodolya
+  description: Установка и базовая конфигурация КриптоПро Nginx
+  min_ansible_version: "2.12"
+
+  role_name: cpnginx_install # <- укажи роль (только латиница, цифры, "_")
+  namespace: cryptogates
+  license: unspecified
+
+  platforms:
+    - name: Ubuntu
+      versions:
+        - "noble"
+
+  galaxy_tags:
+    - nginx
+    - cryptopro
+    - gost

@@ -1,0 +1,5 @@
+# molecule/default/prepare.yml
+- name: Container is already prepared by local Docker image
+  hosts: all
+  gather_facts: false
+  tasks: []

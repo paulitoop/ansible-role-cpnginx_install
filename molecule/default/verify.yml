@@ -1,0 +1,53 @@
+---
+- name: Verify
+  hosts: all
+  tasks:
+
+    - name: Проверяем, доступен ли systemd
+      ansible.builtin.stat:
+        path: /run/systemd/system
+      register: systemd_dir
+
+    - name: Проверка cpnginx через systemd
+      when: systemd_dir.stat.exists
+      block:
+        - name: Получаем статус службы cpnginx
+          ansible.builtin.command: "systemctl status cpnginx"
+          register: cpnginx_status
+          changed_when: false
+
+        - name: Проверяем, что служба активна
+          ansible.builtin.assert:
+            that:
+              - "'Active: active (running)' in cpnginx_status.stdout"
+
+        - name: Проверяем, что служба включена (enabled)
+          ansible.builtin.assert:
+            that:
+              - "'enabled' in cpnginx_status.stdout"
+
+    - name: Пробуем постучаться к тстовой странице
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:8080/"
+        return_content: true
+      register: cpnginx_page
+
+    - name: Проверяем синтаксис конфигурации cpnginx
+      ansible.builtin.command: "/opt/cprocsp/sbin/amd64/cpnginx -t"
+      register: cpnginx_config_test
+      changed_when: false
+
+    - name: Проверяем что конфигурация cpnginx корректна
+      ansible.builtin.assert:
+        that:
+          - "'syntax is ok' in cpnginx_config_test.stderr"
+          - "'test is successful' in cpnginx_config_test.stderr"
+        fail_msg: "В конфигурации cpnginx обнаружена ошибка"
+        success_msg: "Синтаксис cpnginx корректен"
+
+    - name: Првоеряем что содержимое соответствует ожидаемому
+      ansible.builtin.assert:
+        that:
+          - "'Welcome to nginx!' in cpnginx_page.content"
+        fail_msg: "cpnginx page is not responding correctly!"
+        success_msg: "cpnginx is up and serving the expected page."

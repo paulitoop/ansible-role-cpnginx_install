@@ -1,0 +1,6 @@
+---
+# defaults file for cpnginx-install
+cpnginx_install_csp_license: ""
+cpnginx_install_default_conf: "default.conf"
+cpnginx_install_cpnginx_conf: "cpnginx.conf"
+cpnginx_install_deb_packet: "linux-amd64_deb.tgz"
