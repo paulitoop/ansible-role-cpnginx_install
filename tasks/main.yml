@@ -13,8 +13,9 @@
     remote_src: true
   become: true
 
-- name: Запуск установочного скрипта ./install.sh cprocsp-nginx
-  ansible.builtin.command: "./install.sh cprocsp-nginx"
+- name: Установить КриптоПро CSP и Nginx
+  ansible.builtin.command:
+    argv: [./install.sh, --yes, kc1, cprocsp-nginx]
   args:
     chdir: "/lib/linux-amd64_deb"
     creates: "{{ cpnginx_install_cpnginx_bin_dir }}/cpnginx"
@@ -79,9 +80,9 @@
   when: not systemd_dir.stat.exists
 
 - name: Проверяем, работает ли cpnginx
-  ansible.builtin.command: "pgrep -f cpnginx"
+  ansible.builtin.command: "pgrep -x cpnginx"
   register: cpnginx_running
-  ignore_errors: true
+  failed_when: cpnginx_running.rc not in [0, 1]
   changed_when: false
 
 - name: Запуск cpnginx, если не запущен
